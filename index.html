@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe | 2 Players</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root {
+            --primary: #4a6bff;
+            --secondary: #ff6b6b;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --background: #f5f7fa;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .players {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 20px;
+        }
+
+        .player {
+            flex: 1;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player.active {
+            transform: translateY(-5px);
+        }
+
+        .player-x {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .player-o {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .player.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 1/1;
+            background-color: var(--dark);
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .cell {
+            background-color: var(--light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cell:hover {
+            transform: scale(0.95);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .cell.x {
+            color: var(--primary);
+        }
+
+        .cell.o {
+            color: var(--secondary);
+        }
+
+        .cell.winner {
+            animation: bounce 0.5s ease 3, glow 1.5s ease infinite;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            background-color: var(--dark);
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-message {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 20px;
+            min-height: 2.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .result-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .draw {
+            color: var(--dark);
+        }
+
+        .x-wins {
+            color: var(--primary);
+        }
+
+        .o-wins {
+            color: var(--secondary);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scaleX(1); opacity: 1; }
+            50% { transform: scaleX(0.8); opacity: 0.7; }
+            100% { transform: scaleX(1); opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(74, 107, 255, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(74, 107, 255, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(74, 107, 255, 0.5); }
+        }
+
+        .cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, rgba(255, 255, 255, 0.3) 100%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .cell:hover::before {
+            opacity: 1;
+        }
+
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .players {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Tic-Tac-Toe</h1>
+        
+        <div class="players">
+            <div class="player player-x active" id="player-x">Player X</div>
+            <div class="player player-o" id="player-o">Player O</div>
+        </div>
+        
+        <div class="game-board" id="board">
+            <!-- Cells will be generated by JavaScript -->
+        </div>
+        
+        <div class="result-message" id="result-message"></div>
+        
+        <div class="controls">
+            <button id="reset-btn">Reset Game</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const board = document.getElementById('board');
+            const cells = [];
+            const playerX = document.getElementById('player-x');
+            const playerO = document.getElementById('player-o');
+            const resultMessage = document.getElementById('result-message');
+            const resetBtn = document.getElementById('reset-btn');
+            
+            let currentPlayer = 'X';
+            let gameBoard = ['', '', '', '', '', '', '', '', ''];
+            let gameActive = true;
+            
+            // Create cells
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => handleCellClick(i));
+                board.appendChild(cell);
+                cells.push(cell);
+            }
+            
+            // Handle cell click
+            function handleCellClick(index) {
+                if (!gameActive || gameBoard[index] !== '') return;
+                
+                gameBoard[index] = currentPlayer;
+                cells[index].textContent = currentPlayer;
+                cells[index].classList.add(currentPlayer.toLowerCase());
+                
+                // Add animation class temporarily
+                cells[index].classList.add('animate');
+                setTimeout(() => {
+                    cells[index].classList.remove('animate');
+                }, 300);
+                
+                if (checkWin()) {
+                    endGame(false);
+                    return;
+                }
+                
+                if (checkDraw()) {
+                    endGame(true);
+                    return;
+                }
+                
+                switchPlayer();
+            }
+            
+            // Check for win
+            function checkWin() {
+                const winPatterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                    [0, 4, 8], [2, 4, 6]             // diagonals
+                ];
+                
+                return winPatterns.some(pattern => {
+                    const [a, b, c] = pattern;
+                    if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+                        // Highlight winning cells
+                        cells[a].classList.add('winner');
+                        cells[b].classList.add('winner');
+                        cells[c].classList.add('winner');
+                        return true;
+                    }
+                    return false;
+                });
+            }
+            
+            // Check for draw
+            function checkDraw() {
+                return gameBoard.every(cell => cell !== '');
+            }
+            
+            // Switch player
+            function switchPlayer() {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                playerX.classList.toggle('active', currentPlayer === 'X');
+                playerO.classList.toggle('active', currentPlayer === 'O');
+            }
+            
+            // End game
+            function endGame(isDraw) {
+                gameActive = false;
+                
+                if (isDraw) {
+                    resultMessage.textContent = "It's a Draw!";
+                    resultMessage.classList.add('draw');
+                } else {
+                    const winner = currentPlayer === 'X' ? 'X' : 'O';
+                    resultMessage.textContent = `Player ${winner} Wins!`;
+                    resultMessage.classList.add(winner === 'X' ? 'x-wins' : 'o-wins');
+                }
+                
+                resultMessage.classList.add('show');
+            }
+            
+            // Reset game
+            function resetGame() {
+                gameBoard = ['', '', '', '', '', '', '', '', ''];
+                gameActive = true;
+                currentPlayer = 'X';
+                
+                cells.forEach(cell => {
+                    cell.textContent = '';
+                    cell.className = 'cell';
+                });
+                
+                playerX.classList.add('active');
+                playerO.classList.remove('active');
+                
+                resultMessage.textContent = '';
+                resultMessage.className = 'result-message';
+            }
+            
+            // Event listeners
+            resetBtn.addEventListener('click', resetGame);
+            
+            // Initialize game
+            resetGame();
+        });
+    </script>
+</body>
+</html>
